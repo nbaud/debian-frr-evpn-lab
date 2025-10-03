@@ -36,7 +36,7 @@ As long as the box is a minimal Debian/Ubuntu image with `apt` available, the pr
 Bring up the full lab:
 
 ```bash
-git clone https://github.com/YOURNAME/debian-frr-lab.git
+git clone git@github.com:nbaud/debian-frr-lab.git
 cd debian-frr-lab
 vagrant up
 ````
