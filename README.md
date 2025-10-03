@@ -1,4 +1,4 @@
-# debian-frr-evpn-lab
+# debian-frr-lab
 Vagrant-based Debian 13 EVPN spine–leaf lab with FRR. No Guest Additions, ready-to-SSH via .ssh/config. Includes Ansible plays for various levels of network designs.
 
 
@@ -28,8 +28,8 @@ It avoids Guest Additions and synced folders for maximum portability, and comes 
 Bring up the full lab:
 
 ```bash
-git clone https://github.com/YOURNAME/debian-frr-evpn-lab.git
-cd debian-frr-evpn-lab
+git clone https://github.com/YOURNAME/debian-frr-lab.git
+cd debian-frr-lab
 vagrant up
 ````
 
@@ -39,7 +39,7 @@ Vagrant sets up port forwards for each node (e.g. `leaf01` on port 2211).
 Instead of remembering ports, you can populate your `~/.ssh/config` with (replace nico with your own username of course):
 
 ```bash
-cd ~/debian-frr-evpn-lab
+cd ~/debian-frr-lab
 vagrant ssh-config >> ~/.ssh/config
 echo 'Host leaf01 leaf02 leaf03 spine01 spine02 vm01 vm02 vm03
   User nico' >> ~/.ssh/config
