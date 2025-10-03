@@ -1,0 +1,5 @@
+---
+- name: Configure leaves network interfaces
+  template:
+    src: interfaces-leaves.j2
+    dest: /etc/network/interfaces

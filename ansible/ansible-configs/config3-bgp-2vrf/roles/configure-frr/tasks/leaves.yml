@@ -1,0 +1,6 @@
+### VXLAN with 2 VRF
+- name: Configure FRR for VXLAN with 2 VRF and leaking on leaf01
+  template:
+    src: frr-leaves-2vrf.j2
+    dest: /etc/frr/frr.conf
+### VXLAN with 2 VRF

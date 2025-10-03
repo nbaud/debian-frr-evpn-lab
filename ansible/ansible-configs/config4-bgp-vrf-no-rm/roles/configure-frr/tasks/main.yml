@@ -1,0 +1,17 @@
+- name: Make sure the necessary daemons are enabled
+  include_tasks: all.yml
+  when: inventory_hostname in groups['spines'] or inventory_hostname in groups['leaves']
+
+- name: Include spines frr configuration tasks for OSPF and BGP
+  include_tasks: spines.yml
+  when: inventory_hostname in groups['spines']
+
+- name: Include leaves frr configuration tasks for OSPF and BGP
+  include_tasks: leaves.yml
+  when: inventory_hostname in groups['leaves']
+
+- name: restart frr
+  service:
+    name: frr
+    state: restarted
+  when: inventory_hostname in groups['spines'] or inventory_hostname in groups['leaves']

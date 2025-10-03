@@ -1,0 +1,6 @@
+### OSPF
+- name: Configure FRR for OSPF
+  template:
+    src: frr-leaves-ospf.j2
+    dest: /etc/frr/frr.conf
+### OSPF

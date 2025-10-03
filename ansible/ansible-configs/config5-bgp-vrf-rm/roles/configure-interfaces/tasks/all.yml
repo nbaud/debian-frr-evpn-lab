@@ -1,0 +1,7 @@
+---
+
+- name: Ensure ifupdown2 is installed
+  apt:
+    name: ifupdown2
+    state: present
+  become: yes

@@ -1,0 +1,23 @@
+## ifupdown2 installed
+- name: Include all
+  include_tasks: all.yml
+
+## Config for vms
+- name: Include vms interfaces configuration tasks
+  include_tasks: vms.yml
+  when: inventory_hostname in groups['vms']
+
+## Config spines
+- name: Include spines interfaces configuration tasks
+  include_tasks: spines.yml
+  when: inventory_hostname in groups['spines']
+
+## Config leaves
+- name: Include leaves interfaces configuration tasks
+  include_tasks: leaves.yml
+  when: inventory_hostname in groups['leaves']
+
+## reload all interfaces
+- name: ifreload
+  command:
+    cmd: ifreload -a

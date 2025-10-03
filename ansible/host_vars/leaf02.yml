@@ -1,0 +1,135 @@
+lo_address: 10.0.0.2/32
+
+router_id: 10.0.0.2
+
+ospf_networks:
+  - subnet: "10.0.0.2/32"
+  - subnet: "10.1.2.0/30"
+  - subnet: "10.2.2.0/30"
+  - subnet: "10.0.20.0/30"
+  - subnet: "10.0.21.0/30"
+
+
+
+### choubidou VXLAN "basic" config with 2 VRF and one leak (with --tags vxlan)
+interfaces:
+  - name: "swp1"
+    address: "10.1.2.1/30"
+    connected_to: "spine01"
+  - name: "swp2"
+    address: "10.2.2.1/30"
+    connected_to: "spine02"
+  - name: "swp3"
+    address: "10.0.20.1/30"
+    connected_to: "vm02"
+  - name: "swp4"
+    address: "10.0.21.1/30"
+    connected_to: "vm02"
+    vrf: choubidou2
+
+vnix:
+  - id: 10020
+    rt: 20
+
+vlans:
+  - id: 10
+    ip: "10.1.121.1/24"
+    vrf: choubidou2
+  - id: 20
+    vrf: choubidou2
+
+vrfs:
+  - id: choubidou2
+    vni: 10020
+### End ofchoubidou VXLAN "basic" config with 2 VRF and one leak (with --tags vxlan)
+
+
+
+### Segmented VRF variables with multiple leaking configs without route-maps (with --tags vrf-no-rm)
+vnrm_interfaces:
+  - name: "swp1"
+    address: "10.1.2.1/30"
+    connected_to: "spine01"
+  - name: "swp2"
+    address: "10.2.2.1/30"
+    connected_to: "spine02"
+  - name: "swp3"
+    address: "10.0.20.1/30"
+    connected_to: "vm02"
+    vrf: vrfB
+  - name: "swp4"
+    address: "10.0.21.1/30"
+    connected_to: "vm02"
+    vrf: vrfC
+
+vnrm_vnix:
+  - id: 10020
+    rt: 20
+  - id: 10060
+    rt: 60
+
+vnrm_vlans:
+  - id: 10
+    ip: "10.1.120.1/24"
+    vrf: vrfB
+  - id: 20
+    vrf: vrfB
+  - id: 50
+    ip: "10.1.121.1/24"
+    vrf: vrfC
+  - id: 60
+    vrf: vrfC
+
+vnrm_vrfs:
+  - id: vrfC
+    vni: 10060
+    vrf_to_leak: vrfB
+  - id: vrfB
+    vni: 10020
+    vrf_to_leak: vrfC
+
+leaking: yes
+### End of Segmented VRF variables with multiple leaking configs without route-maps (with --tags vrf-no-rm)
+
+
+### Segmented VRF variables (with --tags vrf)
+seg_vrfs:
+  - id: vrfB
+    address: "10.0.20.1/30"
+    vni: 10020
+    rt: 20
+    target_vrf: 
+      id: vrfA
+      router_id: 10.0.0.1
+      vni: 10010
+      rt: 10
+
+seg_vrfs_interfaces:
+  - name: "swp1"
+    address: "10.1.2.1/30"
+    connected_to: "spine01"
+  - name: "swp2"
+    address: "10.2.2.1/30"
+    connected_to: "spine02"
+  - name: "swp3"
+    address: "10.0.20.1/30"
+    connected_to: "vm02"
+    vrf: vrfB
+  - name: "swp4"
+    address: "10.0.21.1/30"
+    connected_to: "vm02"
+
+seg_vrfs_vlans:
+  - id: 10
+    ip: "10.1.112.1/24"
+    vrf: vrfA
+  - id: 20
+    ip: "10.1.121.1/24"
+    vrf: vrfB
+
+seg_vrfs_vnix:
+  - id: 10010
+    rt: 10
+  - id: 10020
+    rt: 20
+### End of Segmented VRF variables (with --tags vrf)

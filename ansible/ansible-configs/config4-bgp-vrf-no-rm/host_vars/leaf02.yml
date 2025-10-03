@@ -1,0 +1,51 @@
+---
+
+interfaces:
+  - name: "swp1"
+    address: "10.1.2.1/30"
+    connected_to: "spine01"
+  - name: "swp2"
+    address: "10.2.2.1/30"
+    connected_to: "spine02"
+  - name: "swp3"
+    address: "10.0.20.1/30"
+    connected_to: "vm02"
+    vrf: vrfA
+  - name: "swp4"
+    address: "10.0.21.1/30"
+    connected_to: "vm02"
+    vrf: vrfC
+vnix:
+  - id: 10020
+    rt: 20
+  - id: 10060
+    rt: 60
+vlans:
+  - id: 10
+    ip: "10.1.120.1/24"
+    vrf: vrfA
+  - id: 20
+    vrf: vrfA
+  - id: 50
+    ip: "10.1.121.1/24"
+    vrf: vrfC
+  - id: 60
+    vrf: vrfC
+vrfs:
+  - id: vrfA
+    vni: 10020
+    target: vrfC
+  - id: vrfC
+    vni: 10060
+    target: vrfA
+
+lo_address: 10.0.0.2/32
+
+router_id: 10.0.0.2
+
+ospf_networks:
+  - subnet: "10.0.0.2/32"
+  - subnet: "10.1.2.0/30"
+  - subnet: "10.2.2.0/30"
+  - subnet: "10.0.20.0/30"
+  - subnet: "10.0.21.0/30"

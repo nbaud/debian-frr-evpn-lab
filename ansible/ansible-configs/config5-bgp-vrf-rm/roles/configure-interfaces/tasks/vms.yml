@@ -1,0 +1,21 @@
+---
+- name: Configure vm network interfaces
+  template:
+    src: interfaces-vms.j2
+    dest: /etc/network/interfaces
+
+## reload all interfaces
+- name: ifreload
+  command:
+    cmd: ifreload -a
+
+- name: Specific for Debian issue with routes
+  block:
+    - name: Attempt to bring down all interfaces
+      shell: ifdown {{ item.name }}
+      loop: "{{ interfaces }}"
+      ignore_errors: yes
+    - name: Ensure the interface is up
+      shell: ifup {{ item.name }}
+      loop: "{{ interfaces }}"
+      ignore_errors: yes

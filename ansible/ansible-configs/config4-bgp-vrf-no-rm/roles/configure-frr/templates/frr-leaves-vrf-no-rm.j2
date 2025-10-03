@@ -1,0 +1,63 @@
+!
+frr defaults datacenter
+log syslog informational
+hostname {{ ansible_hostname }}
+service integrated-vtysh-config
+!
+router ospf
+ ospf router-id {{ router_id }}
+ {% for network in ospf_networks %}
+ network {{ network.subnet }} area 0
+ {% endfor %}
+!
+! BGP Configuration for L2VPN EVPN
+router bgp {{ asn }}
+ neighbor TO_SPINES peer-group
+ neighbor TO_SPINES remote-as {{ asn }}
+ neighbor TO_SPINES update-source lo
+ neighbor TO_SPINES capability extended-nexthop
+ {% for spine in groups['spines'] %}
+ neighbor {{ hostvars[spine].router_id }} peer-group TO_SPINES
+ {% endfor %}
+!
+ address-family ipv4 unicast
+  redistribute connected
+ exit-address-family
+!
+ address-family l2vpn evpn
+  neighbor TO_SPINES activate
+  advertise-all-vni
+  advertise-svi-ip
+ exit-address-family
+!
+exit
+!
+!
+{% if vrfs[0] is defined %}
+{% for vrf in vrfs %}
+{% if vrf.vni is defined %}
+vrf {{ vrf.id }}
+ vni {{ vrf.vni }}
+exit-vrf
+{% endif %}
+{% endfor %}
+{% endif %}
+!
+{% if vrfs[0] is defined %}
+{% for vrf in vrfs %}
+router bgp {{ asn }} vrf {{ vrf.id }}
+!
+address-family ipv4 unicast
+ redistribute connected
+ import vrf {{ vrf.target }}
+exit-address-family
+!
+address-family l2vpn evpn
+ advertise ipv4 unicast
+exit-address-family
+!
+{% endfor %}
+{% endif %}
+!
+exit
+!

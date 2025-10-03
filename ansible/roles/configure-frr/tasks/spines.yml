@@ -1,0 +1,49 @@
+---
+
+### OSPF/PIM daemons
+- name: Enable OSPF daemon
+  lineinfile:
+    path: /etc/frr/daemons
+    regexp: '^ospfd='
+    line: 'ospfd=yes'
+  tags: OSPF,BGP
+
+- name: Enable OSPF6 daemon
+  lineinfile:
+    path: /etc/frr/daemons
+    regexp: '^ospf6d='
+    line: 'ospf6d=yes'
+  tags: OSPF,BGP
+
+- name: Enable PIM daemon
+  lineinfile:
+    path: /etc/frr/daemons
+    regexp: '^pimd='
+    line: 'pimd=yes'
+  tags: OSPF,BGP
+### OSPF/PIM daemons
+
+### OSPF
+- name: Configure FRR for OSPF and PIM
+  template:
+    src: frr-spines-ospf.j2
+    dest: /etc/frr/frr.conf
+  notify: restart frr
+  tags: OSPF
+### OSPF
+
+### BGP
+- name: Enable BGP daemon
+  lineinfile:
+    path: /etc/frr/daemons
+    regexp: '^bgpd='
+    line: 'bgpd=yes'
+  tags: BGP
+
+- name: Configure FRR for BGP
+  template:
+    src: frr-spines-bgp.j2
+    dest: /etc/frr/frr.conf
+  notify: restart frr
+  tags: BGP
+### BGP

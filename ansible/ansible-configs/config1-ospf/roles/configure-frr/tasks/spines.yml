@@ -1,0 +1,8 @@
+---
+
+### OSPF
+- name: Configure FRR for OSPF
+  template:
+    src: frr-spines-ospf.j2
+    dest: /etc/frr/frr.conf
+### OSPF

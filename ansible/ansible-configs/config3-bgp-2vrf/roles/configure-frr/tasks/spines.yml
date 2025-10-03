@@ -1,0 +1,8 @@
+---
+
+### OSPF/BGP
+- name: Configure FRR for OSPF and BGP
+  template:
+    src: frr-spines-2vrf.j2
+    dest: /etc/frr/frr.conf
+### OSPF/BGP

@@ -1,0 +1,16 @@
+---
+lo_address: 10.1.0.2/32
+lo1_address: 10.1.10.2/32
+interfaces:
+  - { name: "swp1", address: "10.2.1.2/30" }
+  - { name: "swp2", address: "10.2.2.2/30" }
+  - { name: "swp3", address: "10.2.3.2/30" }
+
+router_id: 10.1.0.2
+ospf_networks:
+  - subnet: "10.1.0.2/32"
+  - subnet: "10.2.1.0/30"
+  - subnet: "10.2.2.0/30"
+  - subnet: "10.2.3.0/30"
+  - subnet: "10.1.10.2/32"
+msdp_peer: 10.1.0.1

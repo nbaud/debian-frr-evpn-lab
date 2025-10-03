@@ -1,0 +1,52 @@
+---
+### In this scenario, leaf01 is the leaf connecting to both leaf02 and leaf03 with vrfA and vrfB respectively.
+
+interfaces:
+  - name: "swp1"
+    address: "10.1.1.1/30"
+    connected_to: "spine01"
+  - name: "swp2"
+    address: "10.2.1.1/30"
+    connected_to: "spine02"
+  - name: "swp3"
+    address: "10.0.10.1/30"
+    connected_to: "vm01"
+    vrf: vrfA
+  - name: "swp4"
+    address: "10.0.11.1/30"
+    connected_to: "vm01"
+    vrf: vrfB
+vnix:
+  - id: 10020
+    rt: 20
+  - id: 10040
+    rt: 40
+vlans:
+  - id: 10
+    ip: "10.1.110.1/24"
+    vrf: vrfA
+  - id: 20
+    vrf: vrfA
+  - id: 30
+    ip: "10.1.111.1/24"
+    vrf: vrfB
+  - id: 40
+    vrf: vrfB
+vrfs:
+  - id: vrfA
+    vni: 10020
+    target: vrfB
+  - id: vrfB
+    vni: 10040
+    target: vrfA
+
+lo_address: 10.0.0.1/32
+
+router_id: 10.0.0.1
+
+ospf_networks:
+  - subnet: "10.0.0.1/32"
+  - subnet: "10.1.1.0/30"
+  - subnet: "10.2.1.0/30"
+  - subnet: "10.0.10.0/30"
+  - subnet: "10.0.11.0/30"

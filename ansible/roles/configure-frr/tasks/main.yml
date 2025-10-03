@@ -1,0 +1,34 @@
+- name: Include spines frr configuration tasks for ospf and pim
+  include_tasks: spines.yml
+  when: inventory_hostname in groups['spines']
+  tags: OSPF
+
+- name: Include leaves frr configuration tasks for ospf and pim
+  include_tasks: leaves.yml
+  when: inventory_hostname in groups['leaves']
+  tags: OSPF
+
+- name: Include spines frr configuration tasks for BGP
+  include_tasks: spines.yml
+  when: inventory_hostname in groups['spines']
+  tags: BGP
+
+- name: Include leaves frr configuration tasks for BGP
+  include_tasks: leaves.yml
+  when: inventory_hostname in groups['leaves']
+  tags: BGP
+
+- name: Include leaves frr configuration tasks for BGP with VXLAN
+  include_tasks: leaves.yml
+  when: inventory_hostname in groups['leaves']
+  tags: vxlan
+
+- name: Include leaves frr configuration tasks for VRF segregation and leaking
+  include_tasks: leaves.yml
+  when: inventory_hostname in groups['leaves']
+  tags: vrf-no-rm
+
+- name: Include leaves frr configuration tasks for VRF segregation and leaking
+  include_tasks: leaves.yml
+  when: inventory_hostname in groups['leaves']
+  tags: vrf

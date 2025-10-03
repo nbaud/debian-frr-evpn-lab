@@ -1,0 +1,50 @@
+---
+interfaces:
+  - name: "eth1"
+    address: "10.0.20.2"
+    netmask: "255.255.255.252"
+    connected_to: "leaf02-swp3"
+    gateway: "10.0.20.1"
+    routes:
+    - subnet: "10.0.10.0/24"
+    - subnet: "10.1.0.0/16"
+    - subnet: "10.2.0.0/16"
+    - subnet: "10.1.130.0/24"
+    - subnet: "10.1.120.0/24"
+    - subnet: "10.1.110.0/24"
+  - name: "eth2"
+    address: "10.0.21.2"
+    netmask: "255.255.255.252"
+    connected_to: "leaf02-swp4"
+    gateway: "10.0.21.1"
+    routes:
+    - subnet: "10.0.30.0/24"
+    - subnet: "10.1.111.0/24"
+    - subnet: "10.1.121.0/24"
+    - subnet: "10.0.11.0/24"
+## Added subnet 10.0.30.0/24 under the eth2 interface for routing through choubidou2
+
+### --tags vrf-no-rm #### TO MODIFY
+vnrm_interfaces:
+  - name: "eth1"
+    address: "10.0.20.2"
+    netmask: "255.255.255.252"
+    connected_to: "leaf02-swp3_vrfB"
+    gateway: "10.0.20.1"
+  - name: "eth2"
+    address: "10.0.21.2"
+    netmask: "255.255.255.252"
+    connected_to: "leaf02-swp4_vrfC"
+    gateway: "10.0.21.1"
+    routes:
+    - subnet: "10.0.10.0/24"
+    - subnet: "10.0.30.0/24"
+    - subnet: "10.1.0.0/16"
+    - subnet: "10.2.0.0/16"
+    - subnet: "10.1.130.0/24"
+    - subnet: "10.1.120.0/24"
+    - subnet: "10.1.110.0/24"
+    - subnet: "10.1.111.0/24"
+    - subnet: "10.1.131.0/24"
+    - subnet: "10.0.11.0/24"
+    - subnet: "10.0.31.0/24"

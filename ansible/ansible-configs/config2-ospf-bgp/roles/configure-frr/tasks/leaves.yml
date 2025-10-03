@@ -1,0 +1,6 @@
+### OSPF/BGP
+- name: Configure FRR for OSPF and BGP
+  template:
+    src: frr-leaves-ospf-bgp.j2
+    dest: /etc/frr/frr.conf
+### OSPF/BGP

@@ -1,0 +1,6 @@
+### VXLAN with 3 segregated VRF and leaking through route-maps
+- name: Configure FRR for VXLAN with 3 segregated VRF and leaking through route-maps
+  template:
+    src: frr-leaves-bgp-vrf-rm.j2
+    dest: /etc/frr/frr.conf
+### VXLAN with 3 VRF and rm

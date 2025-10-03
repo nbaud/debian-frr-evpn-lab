@@ -1,0 +1,22 @@
+frr version 8.4.3
+frr defaults datacenter
+log syslog informational
+hostname {{ ansible_hostname }}
+service integrated-vtysh-config
+!
+router ospf
+ ospf router-id {{ router_id }}
+ {% for network in ospf_networks %}
+ network {{ network.subnet }} area 0
+ {% endfor %}
+!
+interface lo
+ ip pim
+!
+{% for interface in interfaces %}
+interface {{ interface.name }}
+ ip pim
+!
+{% endfor %}
+ip pim rp {{ pim_rp_address }} {{ pim_rp_network }}
+!

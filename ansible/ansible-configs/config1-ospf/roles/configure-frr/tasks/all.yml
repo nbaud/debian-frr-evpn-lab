@@ -1,0 +1,13 @@
+---
+### OSPF daemons
+- name: Enable OSPF daemon
+  lineinfile:
+    path: /etc/frr/daemons
+    regexp: '^ospfd='
+    line: 'ospfd=yes'
+- name: Enable OSPF6 daemon
+  lineinfile:
+    path: /etc/frr/daemons
+    regexp: '^ospf6d='
+    line: 'ospf6d=yes'
+### daemons end

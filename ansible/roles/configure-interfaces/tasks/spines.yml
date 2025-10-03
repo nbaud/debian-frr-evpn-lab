@@ -1,0 +1,10 @@
+---
+- name: Configure spines network interfaces
+  template:
+    src: interfaces-spines.j2
+    dest: /etc/network/interfaces
+  notify: restart networking
+
+- name: Ensure networking is restarted
+  meta: flush_handlers
+
