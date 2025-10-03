@@ -2,7 +2,7 @@
 Vagrant-based Debian 13 EVPN spine–leaf lab with FRR. No Guest Additions, ready-to-SSH via .ssh/config. Includes Ansible plays for various levels of network designs.
 
 
-# Debian Trixie EVPN Spine–Leaf Lab (VirtualBox + Vagrant + Ansible-ready)
+# Debian Trixie FRR Lab (VirtualBox + Vagrant + Ansible-ready)
 
 This project provides a ready-to-use Vagrant environment for experimenting with EVPN / BGP / Spine–Leaf topologies on Debian 13 (Trixie).  
 It avoids Guest Additions and synced folders for maximum portability, and comes with a clean setup:
@@ -22,6 +22,14 @@ It avoids Guest Additions and synced folders for maximum portability, and comes 
 
 - VirtualBox
 - Vagrant
+
+## Base Vagrant Box
+
+This lab currently uses [`maxhamon/debian13`](https://app.vagrantup.com/maxhamon/boxes/debian13) as the base box for all nodes.  
+It provides a clean and recent (at the time of writing) Debian 13.1 (Trixie) image without Guest Additions, which works well for this setup.
+
+If you prefer another Debian or Ubuntu base box, you can update the `box` field in the `nodes` definition inside the `Vagrantfile`.  
+As long as the box is a minimal Debian/Ubuntu image with `apt` available, the provisioning should work the same.
 
 ## Usage
 
