@@ -2,7 +2,6 @@
 Vagrant-based Debian 13 EVPN spine–leaf lab with FRR. No Guest Additions, ready-to-SSH via .ssh/config. Includes Ansible plays for various levels of network designs.
 
 
-````markdown
 # Debian Trixie EVPN Spine–Leaf Lab (VirtualBox + Vagrant + Ansible-ready)
 
 This project provides a ready-to-use Vagrant environment for experimenting with EVPN / BGP / Spine–Leaf topologies on Debian 13 (Trixie).  
@@ -17,13 +16,12 @@ It avoids Guest Additions and synced folders for maximum portability, and comes 
 - **Spines:** 2 nodes  
 - **Leaves:** 3 nodes  
 - **Test VMs:** 3 end hosts  
-- Internal links are plain VirtualBox intnet networks (no auto IP).
+- Internal links are plain VirtualBox intnet networks mimicking direct physical links (no auto IP).
 
 ## Requirements
 
 - VirtualBox
 - Vagrant
-- (Optional) `vagrant-vbguest` plugin (not required, but handled gracefully if present)
 
 ## Usage
 
@@ -38,7 +36,7 @@ vagrant up
 ## SSH Access
 
 Vagrant sets up port forwards for each node (e.g. `leaf01` on port 2211).
-Instead of remembering ports, you can populate your `~/.ssh/config` with:
+Instead of remembering ports, you can populate your `~/.ssh/config` with (replace nico with your own username of course):
 
 ```bash
 cd ~/debian-frr-evpn-lab
@@ -51,11 +49,16 @@ Now you can simply:
 
 ```bash
 ssh leaf01
+ssh leaf02
+ssh leaf03
+ssh spine01
 ssh spine02
+ssh vm01
+ssh vm02
 ssh vm03
 ```
 
-…and you’ll be logged in as `nico` with passwordless sudo.
+…and you’ll be logged in as `nico` (or your own user) with passwordless sudo.
 
 ## Why no Guest Additions?
 
@@ -77,6 +80,6 @@ vagrant destroy -f
 
 ---
 
-Enjoy hacking on EVPN + FRR with a minimal, repeatable Debian Trixie lab!
+Enjoy hacking on FRR with a minimal, repeatable Debian Trixie lab!
 
 ```
