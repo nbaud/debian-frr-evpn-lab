@@ -44,7 +44,7 @@ vagrant up
 ## SSH Access
 
 Vagrant sets up port forwards for each node (e.g. `leaf01` on port 2211).
-Instead of remembering ports, you can populate your `~/.ssh/config` with (replace nico with your own username of course):
+Instead of remembering ports, you can populate your `~/.ssh/config` with (replace nico with your own username, just remember to specify that user name correctly in the Vagrantfile as well!):
 
 ```bash
 cd ~/debian-frr-lab
