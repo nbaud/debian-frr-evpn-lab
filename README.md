@@ -7,7 +7,7 @@ Vagrant-based Debian 13 EVPN spine–leaf lab with FRR. No Guest Additions, read
 This project provides a ready-to-use Vagrant environment for experimenting with EVPN / BGP / Spine–Leaf topologies on Debian 13 (Trixie).  
 It avoids Guest Additions and synced folders for maximum portability, and comes with a clean setup:
 
-- Each VM already has a `nico` user with passwordless `sudo`.
+- Each VM already has a `nico` user (This is me but feel free to change) with passwordless `sudo`.
 - SSH access is available immediately after `vagrant up`.
 - FRR is preinstalled and enabled on all nodes.
 
