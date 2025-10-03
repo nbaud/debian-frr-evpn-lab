@@ -89,5 +89,3 @@ vagrant destroy -f
 ---
 
 Enjoy hacking on FRR with a minimal, repeatable Debian Trixie lab!
-
-```
