@@ -1,7 +1,14 @@
-{% for interface in interfaces %}
-# Fabric link connected to {{ interface.connected_to | default(interface.name) }}
-auto {{ interface.name }}
-iface {{ interface.name }} inet static
-    address {{ interface.address }}
+{% for iface in interfaces %}
+# {{ iface.name }} connected to {{ iface.connected_to | default("unknown") }}
+auto {{ iface.name }}
+iface {{ iface.name }} inet static
+    address {{ iface.address }}
+    netmask {{ iface.netmask }}
     mtu 9050
+{% if iface.routes %}
+{%   for r in iface.routes %}
+    up   ip route add {{ r.subnet }} via {{ iface.gateway }} || true
+    down ip route del {{ r.subnet }} via {{ iface.gateway }} || true
+{%   endfor %}
+{% endif %}
 {% endfor %}
