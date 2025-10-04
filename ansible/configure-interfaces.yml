@@ -1,7 +1,0 @@
----
-- name: Configure interfaces
-  hosts: all
-  become: yes
-  roles:
-    - configure-interfaces
-

@@ -16,10 +16,3 @@
 - name: Include leaves interfaces configuration tasks
   include_tasks: leaves.yml
   when: inventory_hostname in groups['leaves']
-
-## reload all interfaces
-- name: ifreload
-  command:
-    cmd: ifreload -a
-  when: inventory_hostname in groups['spines'] or inventory_hostname in groups['leaves']
-## vms need a specific extra step after, so I added that in the vms.yml task

@@ -1,5 +1,0 @@
-# group_vars/all.yml
-pim_rp_address: 10.1.10.2
-pim_rp_network: 224.0.0.0/16
-
-asn: 65501

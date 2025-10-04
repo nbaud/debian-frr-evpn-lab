@@ -1,7 +1,0 @@
----
-- name: Configure frr
-  hosts: all
-  become: yes
-  roles:
-    - configure-frr
-
