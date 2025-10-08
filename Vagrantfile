@@ -59,22 +59,6 @@ Vagrant.configure("2") do |config|
       # Minimal base setup (safe for Debian; no locales fluff unless you want it)
       node.vm.provision "shell", privileged: true, inline: <<-SHELL
         set -e
-        # echo "#{node_name} #{node_name}" >> /etc/hosts || true
-        # create 'nico' with passwordless sudo + optional pubkey from host (if present)
-        # NEW_USER="nico"
-        # if ! id "$NEW_USER" &>/dev/null; then
-        #   useradd -m -s /bin/bash "$NEW_USER"
-        #   mkdir -p /home/$NEW_USER/.ssh
-        #   if [ -f /home/vagrant/.ssh/authorized_keys ]; then
-        #     cat /home/vagrant/.ssh/authorized_keys >> /home/$NEW_USER/.ssh/authorized_keys
-        #   fi
-        #   chown -R $NEW_USER:$NEW_USER /home/$NEW_USER/.ssh
-        #   chmod 700 /home/$NEW_USER/.ssh
-        #   chmod 600 /home/$NEW_USER/.ssh/authorized_keys || true
-        #   echo "$NEW_USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/49-$NEW_USER
-        #   chmod 0440 /etc/sudoers.d/49-$NEW_USER
-        # fi
-        set -e
 
         # --- hostname resolution (silence "sudo: unable to resolve host") ---
         HOSTNAME="#{node_name}"
@@ -93,7 +77,6 @@ Vagrant.configure("2") do |config|
 
         # --- ensure .ssh exists ---
         install -d -m 700 -o "$NEW_USER" -g "$NEW_USER" "/home/$NEW_USER/.ssh"
-
         # --- wait a bit for vagrant key to appear, then copy it ---
         for i in $(seq 1 20); do
           if [ -s /home/vagrant/.ssh/authorized_keys ]; then
@@ -103,6 +86,30 @@ Vagrant.configure("2") do |config|
             break
           fi
           sleep 0.2
+        done
+
+        # --- enforce English UTF-8 locale system-wide ---
+        export DEBIAN_FRONTEND=noninteractive
+        apt-get update -y
+        apt-get install -y locales
+
+        # enable en_US.UTF-8 in /etc/locale.gen (idempotent)
+        sed -i 's/^# *en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+        locale-gen en_US.UTF-8
+
+        # set defaults; also write /etc/default/locale for login shells
+        update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 LANGUAGE="en_US:en"
+        printf 'LANG=en_US.UTF-8\nLC_ALL=en_US.UTF-8\nLANGUAGE=en_US:en\n' > /etc/default/locale
+
+        # ensure new shells of vagrant + nico pick it up immediately
+        for u in vagrant #{' ' + 'nico'}; do
+          home="/home/$u"
+          [ "$u" = "vagrant" ] && [ ! -d "$home" ] && home="/home/vagrant"
+          if [ -d "$home" ]; then
+            grep -q 'LANG=en_US.UTF-8' "$home/.profile" 2>/dev/null || \
+              echo 'export LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 LANGUAGE=en_US:en' >> "$home/.profile"
+            chown $u:$u "$home/.profile" || true
+          fi
         done
 
         set -e
