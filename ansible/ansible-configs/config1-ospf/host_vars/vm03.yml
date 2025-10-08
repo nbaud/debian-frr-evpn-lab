@@ -1,20 +1,20 @@
 ---
 
 interfaces:
-  - name: "enp0s8"
+  - name: "eth1"
     address: "10.0.30.2"
     netmask: "255.255.255.252"
-    connected_to: "leaf03-enp0s10"
+    connected_to: "leaf03-eth3"
     gateway: "10.0.30.1"
     routes:
     - subnet: "10.0.10.0/24"
     - subnet: "10.0.20.0/24"
     - subnet: "10.1.0.0/16"
     - subnet: "10.2.0.0/16"
-  - name: "enp0s9"
+  - name: "eth2"
     address: "10.0.31.2"
     netmask: "255.255.255.252"
-    connected_to: "leaf03-enp0s16"
+    connected_to: "leaf03-eth4"
     gateway: "10.0.31.1"
     routes:
     - subnet: "10.0.11.0/24"

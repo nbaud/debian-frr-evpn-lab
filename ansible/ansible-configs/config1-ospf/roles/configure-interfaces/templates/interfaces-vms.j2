@@ -4,7 +4,7 @@ auto {{ iface.name }}
 iface {{ iface.name }} inet static
     address {{ iface.address }}
     netmask {{ iface.netmask }}
-    mtu 9050
+    mtu 1500
 {% if iface.routes %}
 {%   for r in iface.routes %}
     up   ip route add {{ r.subnet }} via {{ iface.gateway }} || true

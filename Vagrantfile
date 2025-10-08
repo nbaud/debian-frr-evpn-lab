@@ -15,14 +15,14 @@ Vagrant.configure("2") do |config|
 
   # Topology
   nodes = {
-    "leaf01"  => { "intnets" => %w[intnet-1 intnet-2 intnet-1-extra intnet-2-extra], "box" => "maxhamon/debian13", "ssh_id" => "11" },
-    "leaf02"  => { "intnets" => %w[intnet-3 intnet-4 intnet-3-extra intnet-4-extra], "box" => "maxhamon/debian13", "ssh_id" => "12" },
-    "leaf03"  => { "intnets" => %w[intnet-5 intnet-6 intnet-5-extra intnet-6-extra], "box" => "maxhamon/debian13", "ssh_id" => "13" },
-    "spine01" => { "intnets" => %w[intnet-1 intnet-3 intnet-5],                         "box" => "maxhamon/debian13", "ssh_id" => "21" },
-    "spine02" => { "intnets" => %w[intnet-2 intnet-4 intnet-6],                         "box" => "maxhamon/debian13", "ssh_id" => "22" },
-    "vm01"    => { "intnets" => %w[intnet-1-extra intnet-2-extra],                      "box" => "maxhamon/debian13", "ssh_id" => "31" },
-    "vm02"    => { "intnets" => %w[intnet-3-extra intnet-4-extra],                      "box" => "maxhamon/debian13", "ssh_id" => "32" },
-    "vm03"    => { "intnets" => %w[intnet-5-extra intnet-6-extra],                      "box" => "maxhamon/debian13", "ssh_id" => "33" }
+    "leaf01"  => { "intnets" => %w[intnet-1 intnet-2 intnet-1-extra intnet-2-extra], "box" => "boxomatic/debian-13", "ssh_id" => "11" },
+    "leaf02"  => { "intnets" => %w[intnet-3 intnet-4 intnet-3-extra intnet-4-extra], "box" => "boxomatic/debian-13", "ssh_id" => "12" },
+    "leaf03"  => { "intnets" => %w[intnet-5 intnet-6 intnet-5-extra intnet-6-extra], "box" => "boxomatic/debian-13", "ssh_id" => "13" },
+    "spine01" => { "intnets" => %w[intnet-1 intnet-3 intnet-5],                         "box" => "boxomatic/debian-13", "ssh_id" => "21" },
+    "spine02" => { "intnets" => %w[intnet-2 intnet-4 intnet-6],                         "box" => "boxomatic/debian-13", "ssh_id" => "22" },
+    "vm01"    => { "intnets" => %w[intnet-1-extra intnet-2-extra],                      "box" => "boxomatic/debian-13", "ssh_id" => "31" },
+    "vm02"    => { "intnets" => %w[intnet-3-extra intnet-4-extra],                      "box" => "boxomatic/debian-13", "ssh_id" => "32" },
+    "vm03"    => { "intnets" => %w[intnet-5-extra intnet-6-extra],                      "box" => "boxomatic/debian-13", "ssh_id" => "33" }
   }
 
   nodes.each do |node_name, node_data|

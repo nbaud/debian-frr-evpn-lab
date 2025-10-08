@@ -1,24 +1,10 @@
-# /templates/interfaces-spines.j2
-
-source /etc/network/interfaces.d/*.intf
-
-# The loopback network interface
+# Base Debian interfaces for spines
 auto lo
 iface lo inet static
     address {{ lo_address }}
 
-# The primary network interface
-auto eth0
-iface eth0 inet dhcp
-    vrf mgmt
-
-auto mgmt
-iface mgmt
-    address 127.0.0.1/8
-    address ::1/128
-    vrf-table auto
-
 {% for interface in interfaces %}
+# Fabric link connected to {{ interface.connected_to | default(interface.name) }}
 auto {{ interface.name }}
 iface {{ interface.name }} inet static
     address {{ interface.address }}

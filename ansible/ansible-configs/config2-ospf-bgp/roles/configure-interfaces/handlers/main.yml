@@ -1,6 +1,6 @@
 ---
 - name: ifreload
-  ansible.builtin.command:
+  command:
     cmd: ifreload -a
   async: 10
   poll: 0

@@ -43,14 +43,17 @@ vagrant up
 
 ## SSH Access
 
-Vagrant sets up port forwards for each node (e.g. `leaf01` on port 2211).
-Instead of remembering ports, you can populate your `~/.ssh/config` with (replace nico with your own username, just remember to specify that user name correctly in the Vagrantfile as well!):
+Vagrant automatically sets up port forwards for each node (for example, leaf01 on port 2211, leaf02 on 2212, etc.).
+To make SSH access seamless — without remembering ports — you can export the connection info into a single modular SSH config file.
+
+Add the following line at the top of your ~/.ssh/config (if not already there):
+
+Include ~/.ssh/config.d/*.conf
 
 ```bash
-cd ~/debian-frr-lab
-vagrant ssh-config >> ~/.ssh/config
-echo 'Host leaf01 leaf02 leaf03 spine01 spine02 vm01 vm02 vm03
-  User nico' >> ~/.ssh/config
+cd debian-frr-lab
+mkdir -p ~/.ssh/config.d
+vagrant ssh-config > ~/.ssh/config.d/vagrant-frr-lab.conf
 ```
 
 Now you can simply:
@@ -66,7 +69,7 @@ ssh vm02
 ssh vm03
 ```
 
-…and you’ll be logged in as `nico` (or your own user) with passwordless sudo.
+…and you’ll be logged in as `vagrant` (or your own user if you want/edit the config file) with passwordless sudo.
 
 ## Why no Guest Additions?
 

@@ -2,6 +2,10 @@
 - name: Include all
   include_tasks: all.yml
 
+## Fix wait-online (trixie issue)
+- name: Configure wait-online behavior
+  include_tasks: wait-online.yml
+
 ## Config for vms
 - name: Include vms interfaces configuration tasks
   include_tasks: vms.yml

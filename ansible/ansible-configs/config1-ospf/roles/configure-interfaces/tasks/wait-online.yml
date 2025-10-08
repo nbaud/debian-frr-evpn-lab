@@ -1,0 +1,36 @@
+---
+
+- name: Collect lab interface names from host_vars
+  set_fact:
+    lab_ifaces: "{{ (interfaces | default([])) | map(attribute='name') | list }}"
+  vars:
+    interfaces: "{{ hostvars[inventory_hostname].interfaces | default([]) }}"
+
+- name: Optionally include NAT adapter
+  set_fact:
+    lab_ifaces: "{{ lab_ifaces + ['enp0s3'] | unique }}"
+  when: include_nat | default(false)
+
+- name: Make drop-in directory for systemd-networkd wait-online
+  file:
+    path: /etc/systemd/system/systemd-networkd-wait-online.service.d
+    state: directory
+    mode: '0755'
+
+- name: Mask ifupdown wait-online to avoid boot hangs
+  systemd:
+    name: ifupdown-wait-online.service
+    enabled: false
+    state: stopped
+    masked: true
+  failed_when: false
+
+- name: Render wait-online override for networkd (only lab ifaces, short timeout)
+  copy:
+    dest: /etc/systemd/system/systemd-networkd-wait-online.service.d/override.conf
+    mode: '0644'
+    content: |
+      [Service]
+      ExecStart=
+      ExecStart=/lib/systemd/systemd-networkd-wait-online --timeout=5 {% for ifc in lab_ifaces %}--interface={{ ifc }} {% endfor %}
+  notify: Reload systemd and restart wait-online

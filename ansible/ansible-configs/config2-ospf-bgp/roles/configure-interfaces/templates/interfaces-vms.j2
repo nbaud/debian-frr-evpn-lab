@@ -1,26 +1,14 @@
-# /templates/interfaces-vms.j2
-
-# The loopback network interface
-auto lo
-iface lo inet loopback
-
-# The primary network interface
-allow-hotplug eth0
-iface eth0 inet dhcp
-
-{% for interface in interfaces %}
-auto {{ interface.name }}
-iface {{ interface.name }} inet static
-    address {{ interface.address }}
-    netmask {{ interface.netmask }}
+{% for iface in interfaces %}
+# {{ iface.name }} connected to {{ iface.connected_to | default("unknown") }}
+auto {{ iface.name }}
+iface {{ iface.name }} inet static
+    address {{ iface.address }}
+    netmask {{ iface.netmask }}
     mtu 9050
-{% if interface.gateway %}
-    gateway {{ interface.gateway }}
-{% endif %}
-{% if interface.routes %}
-{% for route in interface.routes %}
-    up ip route add {{ route.subnet }} via {{ interface.gateway }}
-{% endfor %}
+{% if iface.routes %}
+{%   for r in iface.routes %}
+    up   ip route add {{ r.subnet }} via {{ iface.gateway }} || true
+    down ip route del {{ r.subnet }} via {{ iface.gateway }} || true
+{%   endfor %}
 {% endif %}
 {% endfor %}
-

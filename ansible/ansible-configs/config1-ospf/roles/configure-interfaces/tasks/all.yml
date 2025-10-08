@@ -6,11 +6,35 @@
     state: present
   become: yes
 
-- name: Make enp0s3 IPv6 stanza compatible with ifupdown2
+- name: Ensure DHCP client is present for ifupdown2 (dhclient)
+  apt:
+    name: isc-dhcp-client
+    state: present
+  become: yes
+
+# - name: Ensure eth0 is auto (comes up at boot)
+#   lineinfile:
+#     path: /etc/network/interfaces
+#     regexp: '^allow-hotplug eth0$'
+#     line: 'auto eth0'
+#     state: present
+
+# - name: Normalize IPv6 method and remove duplicate enp0s3 stanza
+#   block:
+#     - replace:
+#         path: /etc/network/interfaces
+#         regexp: '^(iface\s+(?:eth0|enp0s3)\s+inet6)\s+auto$'
+#         replace: '\1 dhcp'
+#     - lineinfile:
+#         path: /etc/network/interfaces
+#         regexp: '^iface\s+enp0s3\s+inet6\s+dhcp$'
+#         state: absent
+
+- name: Remove obsolete IPv6 auto stanza on eth0
   lineinfile:
     path: /etc/network/interfaces
-    regexp: '^iface\s+enp0s3\s+inet6\s+auto$'
-    line: 'iface enp0s3 inet6 dhcp'
+    regexp: '^iface eth0 inet6 auto$'
+    state: absent
 
 - name: Ensure /etc/sysctl.d exists
   file:
