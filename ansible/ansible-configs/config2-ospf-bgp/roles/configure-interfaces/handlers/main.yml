@@ -10,3 +10,9 @@
   wait_for_connection:
     timeout: 15
 
+- name: Reload systemd and restart wait-online
+  systemd:
+    daemon_reload: true
+    name: systemd-networkd-wait-online.service
+    state: restarted
+  failed_when: false

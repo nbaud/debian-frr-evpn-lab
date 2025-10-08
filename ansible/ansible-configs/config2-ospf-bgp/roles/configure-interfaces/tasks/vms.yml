@@ -1,21 +1,16 @@
 ---
-- name: Configure vm network interfaces
+
+- name: Ensure interfaces.d exists
+  file:
+    path: /etc/network/interfaces.d
+    state: directory
+    mode: "0755"
+
+- name: Configure VM network interfaces
   template:
     src: interfaces-vms.j2
-    dest: /etc/network/interfaces
+    dest: /etc/network/interfaces.d/10-lab.cfg
+    mode: "0644"
 
-## reload all interfaces
-- name: ifreload
-  command:
-    cmd: ifreload -a
-
-- name: Specific for Debian issue with routes
-  block:
-    - name: Attempt to bring down all interfaces
-      shell: ifdown {{ item.name }}
-      loop: "{{ interfaces }}"
-      ignore_errors: yes
-    - name: Ensure the interface is up
-      shell: ifup {{ item.name }}
-      loop: "{{ interfaces }}"
-      ignore_errors: yes
+- name: Reload all interfaces (non-disruptive)
+  command: ifreload -a

@@ -1,12 +1,16 @@
 # Base Debian interfaces for leaf
+# Loopback for routing
 auto lo
-iface lo inet static
-    address {{ lo_address }}
+iface lo inet loopback
+{% if lo_address is defined %}
+    up   ip addr add {{ lo_address }} dev lo
+    down ip addr del {{ lo_address }} dev lo
+{% endif %}
 
 {% for interface in interfaces %}
 # Fabric link connected to {{ interface.connected_to | default(interface.name) }}
 auto {{ interface.name }}
 iface {{ interface.name }} inet static
     address {{ interface.address }}
-    mtu 9050
+    mtu 1500
 {% endfor %}

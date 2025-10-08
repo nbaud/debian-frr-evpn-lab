@@ -1,5 +1,16 @@
 ---
+
+- name: Ensure interfaces.d exists
+  file:
+    path: /etc/network/interfaces.d
+    state: directory
+    mode: "0755"
+
 - name: Configure leaves network interfaces
   template:
     src: interfaces-leaves.j2
-    dest: /etc/network/interfaces
+    dest: /etc/network/interfaces.d/10-lab.cfg
+    mode: "0644"
+
+- name: Reload all interfaces (non-disruptive)
+  command: ifreload -a
