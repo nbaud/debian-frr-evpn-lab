@@ -1,7 +1,9 @@
 ---
 
-- name: Configure frr
-  hosts: all
+- name: Configure FRR
+  hosts:
+    - leaves
+    - spines
   become: yes
   roles:
     - configure-frr

@@ -112,10 +112,13 @@ Vagrant.configure("2") do |config|
           fi
         done
 
-        set -e
-        apt-get update -y
-        DEBIAN_FRONTEND=noninteractive apt-get install -y frr frr-pythontools
-        systemctl enable --now frr
+        # --- FRR only on leaf* and spine* nodes ---
+        case "$HOSTNAME" in
+          leaf*|spine*)
+            apt-get install -y frr frr-pythontools
+            systemctl enable --now frr
+            ;;
+        esac
       SHELL
     end
   end
