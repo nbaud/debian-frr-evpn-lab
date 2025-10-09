@@ -1,16 +1,16 @@
 ---
 
 interfaces:
-  - name: "swp1"
+  - name: "eth1"
     address: "10.1.3.1/30"
     connected_to: "spine01"
-  - name: "swp2"
+  - name: "eth2"
     address: "10.2.3.1/30"
     connected_to: "spine02"
-  - name: "swp3"
+  - name: "eth3"
     address: "10.0.30.1/30"
     connected_to: "vm03"
-  - name: "swp4"
+  - name: "eth4"
     address: "10.0.31.1/30"
     connected_to: "vm03"
     vrf: vrfB

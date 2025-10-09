@@ -1,8 +1,16 @@
 ---
-- name: Configure vm network interfaces
+
+- name: Ensure interfaces.d exists
+  file:
+    path: /etc/network/interfaces.d
+    state: directory
+    mode: "0755"
+
+- name: Configure VM network interfaces
   template:
     src: interfaces-vms.j2
-    dest: /etc/network/interfaces
+    dest: /etc/network/interfaces.d/10-lab.cfg
+    mode: "0644"
 
 ## reload all interfaces
 - name: ifreload

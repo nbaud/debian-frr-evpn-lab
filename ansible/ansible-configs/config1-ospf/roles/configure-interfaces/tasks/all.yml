@@ -12,24 +12,6 @@
     state: present
   become: yes
 
-# - name: Ensure eth0 is auto (comes up at boot)
-#   lineinfile:
-#     path: /etc/network/interfaces
-#     regexp: '^allow-hotplug eth0$'
-#     line: 'auto eth0'
-#     state: present
-
-# - name: Normalize IPv6 method and remove duplicate enp0s3 stanza
-#   block:
-#     - replace:
-#         path: /etc/network/interfaces
-#         regexp: '^(iface\s+(?:eth0|enp0s3)\s+inet6)\s+auto$'
-#         replace: '\1 dhcp'
-#     - lineinfile:
-#         path: /etc/network/interfaces
-#         regexp: '^iface\s+enp0s3\s+inet6\s+dhcp$'
-#         state: absent
-
 - name: Remove obsolete IPv6 auto stanza on eth0
   lineinfile:
     path: /etc/network/interfaces
