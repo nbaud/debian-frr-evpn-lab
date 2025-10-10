@@ -1,29 +1,17 @@
-# /templates/interfaces-leaves.j2
-
-source /etc/network/interfaces.d/*.intf
-
-# The loopback network interface
+# Loopback for routing
 auto lo
-iface lo inet static
-    address {{ lo_address }}
-
-# The primary network interface
-auto eth0
-iface eth0 inet dhcp
-    vrf mgmt
-
-auto mgmt
-iface mgmt
-    address 127.0.0.1/8
-    address ::1/128
-    vrf-table auto
+iface lo inet loopback
+{% if lo_address is defined %}
+    up   ip addr add {{ lo_address }} dev lo
+    down ip addr del {{ lo_address }} dev lo
+{% endif %}
 
 {% for interface in interfaces %}
 # Interface connected to {{ interface.connected_to }}
 auto {{ interface.name }}
 iface {{ interface.name }} inet static
     address {{ interface.address }}
-    mtu 9050
+    mtu 1500
 {% if interface.vrf is defined %}
 vrf {{ interface.vrf}}
 {% endif %}
@@ -35,7 +23,7 @@ vrf {{ interface.vrf}}
 auto {{ vrf.id }}
 iface {{ vrf.id }}
     vrf-table auto
-{%   endfor %}    
+{%   endfor %}
 {%   endif %}
 
 # VLAN configurations
@@ -44,7 +32,7 @@ auto vlan{{ vlan.id }}
 iface vlan{{ vlan.id }}
     vlan-id {{ vlan.id }}
     vlan-raw-device vmbr0
-    mtu 9050
+    mtu 1500
 {%   if vlan.vrf is defined %}
     vrf {{ vlan.vrf }}
 {%   endif %}
@@ -60,7 +48,7 @@ iface vxlan{{ vxlan.id }}
     bridge-access {{ vxlan.rt }}
     bridge-learning off
     bridge-arp-nd-suppress on
-    mtu 9050
+    mtu 1500
     vxlan-id {{ vxlan.id }}
 {% endfor %}
 
@@ -71,6 +59,6 @@ iface vmbr0
     bridge-vids {{ vnix | map(attribute='id') | join(' ') }}
     bridge-stp off
     bridge-vlan-aware yes
-    mtu 9050
+    mtu 1500
 
 

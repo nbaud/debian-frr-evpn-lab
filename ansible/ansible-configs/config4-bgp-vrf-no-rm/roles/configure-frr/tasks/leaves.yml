@@ -1,5 +1,5 @@
 ### VXLAN with 2 VRF
-- name: Configure FRR for VXLAN with 3 segregated VRF and one shared VRF without int for leaking
+- name: Configure FRR for VXLAN with 2 VRF and leaking on leaf01
   template:
     src: frr-leaves-vrf-no-rm.j2
     dest: /etc/frr/frr.conf

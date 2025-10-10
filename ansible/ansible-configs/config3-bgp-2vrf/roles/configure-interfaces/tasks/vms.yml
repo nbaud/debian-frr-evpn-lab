@@ -12,6 +12,15 @@
     dest: /etc/network/interfaces.d/10-lab.cfg
     mode: "0644"
 
+- name: Prefer Vagrant NAT on eth0 (set metric 50 under eth0 dhcp stanza)
+  lineinfile:
+    path: /etc/network/interfaces
+    insertafter: '^iface eth0 inet dhcp$'
+    regexp: '^\s*metric\s+50$'
+    line: '    metric 50'
+    state: present
+    backup: false
+
 ## reload all interfaces
 - name: ifreload
   command:
