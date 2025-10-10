@@ -1,8 +1,7 @@
 ---
-- name: restart networking
-  systemd:
-    name: networking
-    state: restarted
+- name: ifreload
+  ansible.builtin.command:
+    cmd: ifreload -a
   async: 10
   poll: 0
   ignore_errors: true
@@ -11,14 +10,3 @@
   wait_for_connection:
     timeout: 15
 
-- name: restart frr
-  service:
-    name: frr
-    state: restarted
-  async: 10
-  poll: 0
-  ignore_errors: true
-
-- name: Wait for system to become reachable
-  wait_for_connection:
-    timeout: 15

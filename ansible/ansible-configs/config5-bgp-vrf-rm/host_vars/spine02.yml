@@ -2,9 +2,9 @@
 lo_address: 10.1.0.2/32
 lo1_address: 10.1.10.2/32
 interfaces:
-  - { name: "swp1", address: "10.2.1.2/30" }
-  - { name: "swp2", address: "10.2.2.2/30" }
-  - { name: "swp3", address: "10.2.3.2/30" }
+  - { name: "eth1", address: "10.2.1.2/30" }
+  - { name: "eth2", address: "10.2.2.2/30" }
+  - { name: "eth3", address: "10.2.3.2/30" }
 
 router_id: 10.1.0.2
 ospf_networks:

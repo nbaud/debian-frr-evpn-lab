@@ -1,16 +1,85 @@
 ---
+
+# What changed vs config4
+# 1) Topology / VRFs
+# Config4: per-leaf 2× VRFs (A with B/C/D), symmetric import vrf → A became a transit hub for all connected routes (SVIs + /30s).
+# Config5: 3 VRFs total across the fabric:
+# leaf01: A, B, C
+# leaf02: A, B
+# leaf03: A, C
+# Still import vrf based on the vrfs[].target[] list (A↔B where present, A↔C where present).
+# 2) EVPN type-5 export is now FILTERED
+# New template frr-leaves-bgp-vrf-rm.j2 adds:
+# ip prefix-list <vrf>_pl permit <vrf.address> (your /30 VM link)
+# route-map <vrf>_adv matching that prefix-list
+# Under each router bgp … vrf X → address-family l2vpn evpn:
+# advertise ipv4 unicast route-map <vrf>_adv
+# Effect: each VRF only exports its VM /30 (e.g., 10.0.20.0/30) as type-5.
+# SVI /24s (10.1.111/121/131) are NOT exported as type-5 anymore.
+# 3) Anycast SVIs
+# You configured the same SVI IP per VRF on multiple leaves (e.g., 10.1.111.1/24 for vrfA on all three leaves).
+# That’s a distributed gateway pattern: pings to those SVI IPs will reply locally on every leaf.
+# Practical impact
+# Config4: cross-leaf cross-VRF worked for everything (SVIs & /30s) because you exported all connected routes.
+# Config5: cross-leaf cross-VRF works only for the VM /30s, because you export only those /30s.
+# SVI /24s do not traverse the fabric at L3 (they’re local anycast gateways).
+# Also: because import vrf is still symmetric (A↔B, A↔C), A is still a transit hub—but only for VM /30s, not for SVI /24s.
+# Testing: what should PASS vs FAIL (config5)
+# Important note first
+# Pinging the SVI IPs (10.1.111.1 / 121.1 / 131.1) always succeeds locally due to anycast gateways. They’re not a proof of inter-leaf routing anymore.
+# Use the /30 VM link addresses to test real inter-leaf + inter-VRF behavior.
+# Address key (per VRF)
+# vrfA VM /30s: leaf01 10.0.10.0/30, leaf02 (A present) 10.0.10.0/30, leaf03 (A present) 10.0.10.0/30
+# vrfB VM /30: leaf02 10.0.20.0/30
+# vrfC VM /30: leaf03 10.0.30.0/30
+# (Leaf01 also has vrfB/vrfC entries, but the export per leaf is whatever vrf.address is set to in that host’s vars.)
+# From vm01 (eth1 = vrfA via 10.0.10.1, eth2 = vrfB via 10.0.11.1)
+# ✅ Should work (via A transit, because type-5 exports include /30s and imports are symmetric):
+# From vrfB (eth2) on vm01 → leaf02 vrfB /30:
+# ping 10.0.20.1 (leaf02 side) ✅
+# ping 10.0.20.2 (vm02 eth1) ✅
+# From vrfB (eth2) → leaf03 vrfC /30 (via A transit B↔A↔C):
+# ping 10.0.30.1 (leaf03) ✅
+# ping 10.0.30.2 (vm03 eth1) ✅
+# From vrfA (eth1) on vm01 to other A /30s (if exported by those leaves) ✅
+# ❌ Should fail (not exported as type-5):
+# Any SVI /24 across VRFs via routing:
+# e.g., vrfB trying to reach 10.1.131.0/24 as remote L3.
+# (But pinging 10.1.131.1 will still reply locally because it’s anycast on leaf01—this is why that test is misleading.)
+# From vm02 (eth1 = vrfA? actually in host_vars it’s vrfB on leaf02; eth2 = plain)
+# Think in terms of VRFs:
+# From vrfB on vm02 → leaf01 vrfA /30 (import/export B↔A): ping 10.0.10.1/2 ✅
+# From vrfB on vm02 → leaf03 vrfC /30 (B↔A↔C): ping 10.0.30.1/2 ✅
+# SVI /24 routing across VRFs ❌ (but anycast SVI IP responds locally).
+# From vm03 (eth1 = vrfC, eth2 = vrfD in older configs; here vrfC and vrfD isn’t present—this config uses C, not D)
+# From vrfC → leaf01 vrfA /30 (C↔A): ping 10.0.10.1/2 ✅
+# From vrfC → leaf02 vrfB /30 (C↔A↔B): ping 10.0.20.1/2 ✅
+# SVI /24 routing across VRFs ❌ (same caveat about anycast replies).
+
+
+# Reachability matrix (✅ allowed / ❌ blocked)
+# Between VRFs (use the /30 VM-link IPs to test)
+# Source VRF	Destination VRF	What	Result	Example pings (from VM side)
+# A	A (other leaves)	/30	✅	From VM01(A): ping 10.0.10.1 (leaf01) / from others if present
+# A	B	/30 via A↔B	✅	From VM01(A) → leaf02/VM02: ping 10.0.20.1, 10.0.20.2
+# A	C	/30 via A↔C	✅	From VM01(A) → leaf03/VM03: ping 10.0.30.1, 10.0.30.2
+# B	A	/30 via B↔A	✅	From VM02(B) → leaf01/VM01: ping 10.0.10.1, 10.0.10.2
+# C	A	/30 via C↔A	✅	From VM03(C) → leaf01/VM01: ping 10.0.10.1, 10.0.10.2
+# B	C	/30 via B↔A↔C	✅	From VM02(B) → leaf03/VM03: ping 10.0.30.1, 10.0.30.2
+# C	B	/30 via C↔A↔B	✅	From VM03(C) → leaf02/VM02: ping 10.0.20.1, 10.0.20.2
+
 interfaces:
-  - name: "swp1"
+  - name: "eth1"
     address: "10.1.1.1/30"
     connected_to: "spine01"
-  - name: "swp2"
+  - name: "eth2"
     address: "10.2.1.1/30"
     connected_to: "spine02"
-  - name: "swp3"
+  - name: "eth3"
     address: "10.0.10.1/30"
     connected_to: "vm01"
     vrf: vrfA
-  - name: "swp4"
+  - name: "eth4"
     address: "10.0.11.1/30"
     connected_to: "vm01"
 vlans:

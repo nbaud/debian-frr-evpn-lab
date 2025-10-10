@@ -1,9 +1,10 @@
 ---
+
 interfaces:
   - name: "eth1"
     address: "10.0.20.2"
     netmask: "255.255.255.252"
-    connected_to: "leaf02-swp3_vrfB"
+    connected_to: "leaf02-eth3_vrfB"
     gateway: "10.0.20.1"
     routes:
     - subnet: "10.0.10.0/24"
@@ -15,6 +16,6 @@ interfaces:
   - name: "eth2"
     address: "10.0.21.2"
     netmask: "255.255.255.252"
-    connected_to: "leaf02-swp4"
+    connected_to: "leaf02-eth4"
     gateway: "10.0.21.1"
     routes:

@@ -23,78 +23,72 @@
 # Local only: import vrf is local to the node. That’s what you want here (leak within each leaf). Spines remain clean RRs—no policy there.
 # Duplicate lo1_address on spines: Both spines set lo1_address: 10.1.10.2/32 and include it in OSPF. If intentional (anycast loopback), fine; otherwise it can be confusing in OSPF/RIB. This is unchanged but worth flagging.
 # VM route placement: With more complete inter-VRF leaking, you could eventually reduce the static route spray on VMs and let the leaf do more forwarding—optional, but it will simplify VM configs.
-
 ### checks
+# template does symmetric leaking on each leaf so they should be able to communicate:
+# leaf01: vrfA ↔ vrfB
+# leaf02: vrfA ↔ vrfC
+# leaf03: vrfA ↔ vrfD
 # From the VMs
-# vm01 (vrfA on eth1, vrfB on eth2)
-# Intra-VRF A (should reach A SVIs on all leaves)
-# ping -c3 10.1.110.1 (leaf01 A SVI) ✅
-# ping -c3 10.1.120.1 (leaf02 A SVI) ✅
-# ping -c3 10.1.130.1 (leaf03 A SVI) ✅
-# Intra-VRF B (only exists on leaf01 in this config)
-# ping -c3 10.1.111.1 (leaf01 B SVI) ✅
-# ping -c3 10.1.131.1 (leaf03 D SVI) ❌ (different VRF)
-# Cross-VRF (local leak on leaf01 only)
-# From vm01 A → leaf01 B: ping -c3 10.1.111.1 ✅
-# From vm01 B → leaf01 A: ping -c3 10.1.110.1 ✅
-# Cross-leaf cross-VRF (e.g., A→C/D elsewhere) ❌ (no fabric-wide leaking)
-# vm02 (vrfA on eth1, vrfC on eth2)
-# Intra-VRF A
-# ping -c3 10.1.110.1 ✅
-# ping -c3 10.1.120.1 ✅
-# ping -c3 10.1.130.1 ✅
-# Intra-VRF C (only on leaf02)
-# ping -c3 10.1.121.1 ✅
-# Cross-VRF (local leak on leaf02 only)
-# From vm02 A → leaf02 C: ping -c3 10.1.121.1 ✅
-# From vm02 C → leaf02 A: ping -c3 10.1.120.1 ✅
-# A on vm02 → D on leaf03 (e.g., 10.1.131.1) ❌
-# vm03 (vrfA on eth1, vrfD on eth2)
-# Intra-VRF A
-# ping -c3 10.1.110.1 ✅
-# ping -c3 10.1.120.1 ✅
-# ping -c3 10.1.130.1 ✅
-# Intra-VRF D (only on leaf03)
-# ping -c3 10.1.131.1 ✅
-# Cross-VRF (local leak on leaf03 only)
-# From vm03 A → leaf03 D: ping -c3 10.1.131.1 ✅
-# From vm03 D → leaf03 A: ping -c3 10.1.130.1 ✅
-# A on vm03 → C on leaf02 (e.g., 10.1.121.1) ❌
-# From the leaves (use VRF-aware pings)
+# vm01 (B on eth2, A on eth1)
+# ✅ Should work
+# Intra-A (all leaves): 10.1.110.1, 10.1.120.1, 10.1.130.1
+# Local B (leaf01): 10.1.111.1
+# Cross-leaf cross-VRF via A (because A↔B, A↔C, A↔D):
+# to leaf02 C: 10.1.121.1
+# to leaf03 D: 10.1.131.1 ← the one you tested
+# (Same logic means you can also reach the /30 link IPs on other VMs/leaves if they’re in those VRFs—your redistribute connected in the VRF AF will advertise them as type-5.)
+# ❌ Should fail
+# Default-VRF stuff (not in any VRF, e.g., spine/leaf loopbacks) from the VM’s VRFs:
+# 10.1.0.1, 10.1.0.2 (spine LOs)
+# 10.0.0.1, 10.0.0.2, 10.0.0.3 (leaf LOs)
+# (No VRF↔default leaking configured.)
+# vm02 (C on eth2, A on eth1) — symmetric to vm01
+# ✅ Works
+# A SVIs: 10.1.110.1, 10.1.120.1, 10.1.130.1
+# Local C: 10.1.121.1
+# Cross via A:
+# to leaf01 B: 10.1.111.1
+# to leaf03 D: 10.1.131.1
+# ❌ Fails
+# Default-VRF loopbacks: 10.1.0.1, 10.1.0.2, 10.0.0.x
+# vm03 (D on eth2, A on eth1) — symmetric again
+# ✅ Works
+# A SVIs: 10.1.110.1, 10.1.120.1, 10.1.130.1
+# Local D: 10.1.131.1
+# Cross via A:
+# to leaf01 B: 10.1.111.1
+# to leaf02 C: 10.1.121.1
+# ❌ Fails
+# Default-VRF loopbacks: 10.1.0.1, 10.1.0.2, 10.0.0.x
+# From the leaves (VRF-aware pings)
 # Leaf01
-# Intra-VRF A across fabric:
-# ip vrf exec vrfA ping -c2 10.1.120.1 ✅
-# ip vrf exec vrfA ping -c2 10.1.130.1 ✅
-# Local cross-VRF leak:
-# ip vrf exec vrfA ping -c2 10.1.111.1 ✅
-# ip vrf exec vrfB ping -c2 10.1.110.1 ✅
+# ✅ Works
+# ip vrf exec vrfA ping 10.1.120.1, 10.1.130.1 (A across fabric)
+# Local leak both ways (symmetric):
+# ip vrf exec vrfA ping 10.1.111.1 and ip vrf exec vrfB ping 10.1.110.1
+# Cross-leaf cross-VRF via A:
+# ip vrf exec vrfB ping 10.1.121.1, ip vrf exec vrfB ping 10.1.131.1
+# ❌ Fails
+# From vrfA/vrfB to default-VRF IPs (e.g., spines’ 10.1.0.1/0.2), unless you add VRF↔default leaking/NAT.
 # Leaf02
-# Intra-VRF A across fabric:
-# ip vrf exec vrfA ping -c2 10.1.110.1 ✅
-# ip vrf exec vrfA ping -c2 10.1.130.1 ✅
-# Local cross-VRF leak:
-# ip vrf exec vrfA ping -c2 10.1.121.1 ✅
-# ip vrf exec vrfC ping -c2 10.1.120.1 ✅
-# Cross-leaf cross-VRF (A→D, A→B): ❌
+# ✅ Works
+# ip vrf exec vrfA ping 10.1.110.1, 10.1.130.1
+# Local leak both ways:
+# ip vrf exec vrfA ping 10.1.121.1 and ip vrf exec vrfC ping 10.1.120.1
+# Cross via A:
+# ip vrf exec vrfC ping 10.1.111.1, ip vrf exec vrfC ping 10.1.131.1
+# ❌ Fails
+# VRF→default-VRF loopbacks (spines/leaf LOs).
 # Leaf03
-# Intra-VRF A across fabric:
-# ip vrf exec vrfA ping -c2 10.1.110.1 ✅
-# ip vrf exec vrfA ping -c2 10.1.120.1 ✅
-# Local cross-VRF leak:
-# ip vrf exec vrfA ping -c2 10.1.131.1 ✅
-# ip vrf exec vrfD ping -c2 10.1.130.1 ✅
-# Cross-leaf cross-VRF (A→C, A→B): ❌
-# Control-plane & dataplane quick checks
-# EVPN type-5 present:
-# vtysh -c "show bgp l2vpn evpn route type-5"
-# VNIs bound:
-# vtysh -c "show evpn vni"
-# IPv4 AF RIB per VRF:
-# vtysh -c "show bgp vrf vrfA ipv4 unicast" (repeat for vrfB/vrfC/vrfD)
-# OSPF up:
-# vtysh -c "show ip ospf neighbor"
-# BGP sessions:
-# vtysh -c "show bgp summary"
+# ✅ Works
+# ip vrf exec vrfA ping 10.1.110.1, 10.1.120.1
+# Local leak both ways:
+# ip vrf exec vrfA ping 10.1.131.1 and ip vrf exec vrfD ping 10.1.130.1
+# Cross via A:
+# ip vrf exec vrfD ping 10.1.111.1, ip vrf exec vrfD ping 10.1.121.1
+# ❌ Fails
+# VRF→default-VRF loopbacks.
+
 
 interfaces:
   - name: "eth1"

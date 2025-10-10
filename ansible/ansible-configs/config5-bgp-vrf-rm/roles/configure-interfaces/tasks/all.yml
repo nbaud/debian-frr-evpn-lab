@@ -2,6 +2,39 @@
 
 - name: Ensure ifupdown2 is installed
   apt:
-    name: ifupdown2
+    name:
+      - iproute2
+      - ifupdown2
+      - bridge-utils
+      - isc-dhcp-client
     state: present
   become: yes
+
+- name: Remove obsolete IPv6 auto stanza on eth0
+  lineinfile:
+    path: /etc/network/interfaces
+    regexp: '^iface eth0 inet6 auto$'
+    state: absent
+
+- name: Ensure /etc/sysctl.d exists
+  file:
+    path: /etc/sysctl.d
+    state: directory
+    mode: "0755"
+
+- name: Install router sysctl config for forwarding and redirects
+  copy:
+    dest: /etc/sysctl.d/99-router.conf
+    content: |
+      # Enable IPv4/IPv6 forwarding
+      net.ipv4.ip_forward = 1
+      net.ipv6.conf.all.forwarding = 1
+
+      # Disable ICMP redirects
+      net.ipv4.conf.all.send_redirects = 0
+      net.ipv4.conf.default.send_redirects = 0
+    mode: "0644"
+
+- name: Reload sysctl to apply immediately
+  command: sysctl --system
+  changed_when: false
